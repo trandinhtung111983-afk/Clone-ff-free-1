@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gmail Clone Shop</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+:root{
+    --bg:#070711;
+    --card:#11111f;
+    --card2:#151527;
+    --text:#fff;
+    --muted:#9696aa;
+    --line:#292940;
+    --neon:#00eaff;
+    --green:#00ff88;
+    --red:#ff416c;
+}
+
+body.light{
+    --bg:#f3f5f9;
+    --card:#fff;
+    --card2:#f8f9fc;
+    --text:#111;
+    --muted:#666;
+    --line:#ddd;
+}
+
+body{
+    min-height:100vh;
+    background:var(--bg);
+    color:var(--text);
+    transition:.3s;
+}
+
+/* HEADER */
+header{
+    height:65px;
+    position:sticky;
+    top:0;
+    z-index:50;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 5%;
+    background:var(--card);
+    backdrop-filter:blur(15px);
+    border-bottom:1px solid var(--line);
+}
+
+.logo{
+    color:var(--neon);
+    font-size:21px;
+    font-weight:bold;
+    text-shadow:
+        0 0 8px var(--neon),
+        0 0 22px var(--neon);
+}
+
+.controls{
+    display:flex;
+    gap:8px;
+}
+
+button{
+    cursor:pointer;
+    color:var(--text);
+    background:transparent;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:9px 13px;
+    transition:.2s;
+}
+
+button:hover{
+    border-color:var(--neon);
+    box-shadow:0 0 12px rgba(0,234,255,.25);
+}
+
+/* LAYOUT */
+.layout{
+    max-width:1200px;
+    margin:auto;
+    display:grid;
+    grid-template-columns:230px 1fr;
+}
+
+/* SIDEBAR */
+.sidebar{
+    min-height:calc(100vh - 65px);
+    padding:22px 13px;
+    border-right:1px solid var(--line);
+}
+
+.nav{
+    width:100%;
+    text-align:left;
+    margin-bottom:8px;
+    padding:12px;
+}
+
+.nav.active{
+    color:var(--neon);
+    background:rgba(0,234,255,.08);
+    border-color:var(--neon);
+}
+
+/* MAIN */
+main{
+    padding:25px;
+}
+
+/* SEARCH */
+.search{
+    display:flex;
+    gap:10px;
+    margin-bottom:25px;
+}
+
+.search input{
+    width:100%;
+    padding:14px 16px;
+    background:var(--card);
+    color:var(--text);
+    border:1px solid var(--line);
+    border-radius:12px;
+    outline:none;
+}
+
+.search input:focus{
+    border-color:var(--neon);
+    box-shadow:0 0 15px rgba(0,234,255,.18);
+}
+
+/* ADMIN */
+.admin{
+    display:none;
+    padding:20px;
+    margin-bottom:25px;
+    background:var(--card);
+    border:1px solid var(--neon);
+    border-radius:16px;
+}
+
+.admin.show{
+    display:block;
+}
+
+.admin h2{
+    color:var(--neon);
+    margin-bottom:16px;
+}
+
+.form{
+    display:grid;
+    grid-template-columns:1fr 1fr auto;
+    gap:10px;
+}
+
+.form input{
+    width:100%;
+    padding:13px;
+    color:var(--text);
+    background:var(--card2);
+    border:1px solid var(--line);
+    border-radius:10px;
+    outline:none;
+}
+
+.form input:focus{
+    border-color:var(--neon);
+}
+
+/* ACCOUNT LIST */
+.accounts{
+    display:grid;
+    grid-template-columns:repeat(
+        auto-fit,
+        minmax(270px,1fr)
+    );
+    gap:18px;
+}
+
+/* CARD */
+.account{
+    padding:20px;
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    transition:.25s;
+}
+
+body.neon .account:hover{
+    transform:translateY(-5px);
+    border-color:var(--neon);
+    box-shadow:0 0 20px rgba(0,234,255,.2);
+}
+
+.account-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:17px;
+}
+
+.gmail-icon{
+    width:48px;
+    height:48px;
+    display:grid;
+    place-items:center;
+    background:#fff;
+    border-radius:14px;
+    font-size:24px;
+}
+
+.status{
+    color:var(--green);
+    font-size:12px;
+    font-weight:bold;
+}
+
+.account h3{
+    margin-bottom:15px;
+}
+
+/* HIDDEN ACCOUNT */
+.hidden-account{
+    text-align:center;
+    padding:15px;
+    background:rgba(128,128,128,.07);
+    border:1px dashed var(--line);
+    border-radius:12px;
+    color:var(--muted);
+}
+
+.hidden-icon{
+    font-size:30px;
+    margin-bottom:8px;
+}
+
+/* INFO */
+.account-info{
+    display:none;
+}
+
+.account-info.show{
+    display:block;
+}
+
+.field{
+    margin:9px 0;
+    padding:11px;
+    background:rgba(128,128,128,.07);
+    border:1px solid var(--line);
+    border-radius:9px;
+}
+
+.field small{
+    display:block;
+    color:var(--muted);
+    margin-bottom:5px;
+}
+
+.value{
+    word-break:break-all;
+}
+
+/* PRICE */
+.price{
+    margin:18px 0;
+    color:var(--green);
+    font-size:27px;
+    font-weight:bold;
+    text-shadow:0 0 10px rgba(0,255,136,.3);
+}
+
+/* RECEIVE */
+.receive{
+    width:100%;
+    padding:13px;
+    border:0;
+    border-radius:11px;
+    background:var(--neon);
+    color:#000;
+    font-weight:bold;
+}
+
+.receive:hover{
+    box-shadow:
+        0 0 15px var(--neon),
+        0 0 35px rgba(0,234,255,.3);
+}
+
+.receive:disabled{
+    cursor:default;
+}
+
+/* ACTIONS */
+.actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+    margin-top:10px;
+}
+
+.copy{
+    color:var(--neon);
+}
+
+.delete{
+    color:var(--red);
+}
+
+/* EMPTY */
+.empty{
+    color:var(--muted);
+    padding:30px 5px;
+}
+
+/* TOAST */
+#toast{
+    position:fixed;
+    left:50%;
+    bottom:25px;
+    transform:translate(-50%,120px);
+    opacity:0;
+    max-width:90%;
+    padding:13px 20px;
+    background:#111;
+    color:#fff;
+    border:1px solid var(--neon);
+    border-radius:11px;
+    box-shadow:0 0 20px var(--neon);
+    transition:.3s;
+    z-index:100;
+}
+
+#toast.show{
+    transform:translate(-50%,0);
+    opacity:1;
+}
+
+/* MOBILE */
+@media(max-width:700px){
+
+    header{
+        padding:0 14px;
+    }
+
+    .logo{
+        font-size:17px;
+    }
+
+    .layout{
+        display:block;
+    }
+
+    .sidebar{
+        min-height:auto;
+        display:flex;
+        gap:7px;
+        padding:9px;
+        overflow-x:auto;
+        border-right:0;
+        border-bottom:1px solid var(--line);
+    }
+
+    .nav{
+        min-width:max-content;
+        margin:0;
+        padding:9px 12px;
+    }
+
+    main{
+        padding:15px;
+    }
+
+    .form{
+        grid-template-columns:1fr;
+    }
+
+    .accounts{
+        grid-template-columns:1fr;
+    }
+
+    .controls button{
+        padding:8px;
+    }
+
+    .actions{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+
+<body class="neon">
+
+<header>
+
+    <div class="logo">
+        ✉ GMAIL CLONE
+    </div>
+
+    <div class="controls">
+
+        <button onclick="toggleTheme()">
+            ☀️/🌙
+        </button>
+
+        <button onclick="toggleNeon()">
+            💡
+        </button>
+
+    </div>
+
+</header>
+
+<div class="layout">
+
+    <aside class="sidebar">
+
+        <button class="nav active">
+            📧 Gmail
+        </button>
+
+        <button
+            class="nav"
+            onclick="toggleAdmin()">
+            ⚙️ Quản trị
+        </button>
+
+    </aside>
+
+    <main>
+
+        <div class="search">
+
+            <input
+                id="search"
+                type="search"
+                placeholder="🔎 Tìm Gmail..."
+                oninput="render()">
+
+        </div>
+
+        <section
+            id="admin"
+            class="admin">
+
+            <h2>
+                ⚙️ Quản trị Gmail
+            </h2>
+
+            <div class="form">
+
+                <input
+                    id="email"
+                    type="text"
+                    placeholder="Email demo">
+
+                <input
+                    id="password"
+                    type="text"
+                    placeholder="Mật khẩu demo">
+
+                <button onclick="addAccount()">
+                    ＋ Thêm
+                </button>
+
+            </div>
+
+        </section>
+
+        <div
+            id="accounts"
+            class="accounts">
+        </div>
+
+    </main>
+
+</div>
+
+<div id="toast"></div>
+
+<script>
+
+/* =================================
+   DANH SÁCH 3 ACC GIỮ NGUYÊN
+================================= */
+
+let accounts = [
+
+    {
+        id: 1,
+        email: "ymed4fs2@gmail.com",
+        password: "ytet56"
+    },
+
+    {
+        id: 2,
+        email: "ymed4fs234@gmail.com",
+        password: "testclonefree"
+    },
+
+    {
+        id: 3,
+        email: "ymed4fs253@gmail.com",
+        password: "clonefree789456"
+    }
+
+];
+
+
+/* =================================
+   LƯU ACC ĐÃ NHẬN
+================================= */
+
+let receivedAccounts = new Set();
+
+
+/* =================================
+   RENDER
+================================= */
+
+function render(){
+
+    const box =
+        document.getElementById("accounts");
+
+    const search =
+        document.getElementById("search");
+
+    const keyword =
+        search.value
+        .toLowerCase()
+        .trim();
+
+    const list =
+        accounts.filter(account =>
+            account.email
+            .toLowerCase()
+            .includes(keyword)
+        );
+
+    if(list.length === 0){
+
+        box.innerHTML = `
+            <div class="empty">
+                🔎 Không tìm thấy Gmail.
+            </div>
+        `;
+
+        return;
+    }
+
+    box.innerHTML =
+        list
+        .map(account => createCard(account))
+        .join("");
+}
+
+
+/* =================================
+   TẠO CARD
+================================= */
+
+function createCard(account){
+
+    const received =
+        receivedAccounts.has(account.id);
+
+    return `
+
+    <div class="account">
+
+        <div class="account-head">
+
+            <div class="gmail-icon">
+                📧
+            </div>
+
+            <span class="status">
+                ● CÒN HÀNG
+            </span>
+
+        </div>
+
+        <h3>
+            Gmail #${account.id}
+        </h3>
+
+        <div
+            id="hidden-${account.id}"
+            class="hidden-account"
+            style="${received ? "display:none;" : ""}">
+
+            <div class="hidden-icon">
+                🔒
+            </div>
+
+            <div>
+                Tài khoản đang được ẩn
+            </div>
+
+            <small>
+                Nhấn "NHẬN ACC" để hiển thị
+            </small>
+
+        </div>
+
+        <div
+            id="info-${account.id}"
+            class="account-info ${received ? "show" : ""}">
+
+            <div class="field">
+
+                <small>
+                    Email
+                </small>
+
+                <div class="value">
+                    ${escapeHTML(account.email)}
+                </div>
+
+            </div>
+
+            <div class="field">
+
+                <small>
+                    Password
+                </small>
+
+                <div class="value">
+                    ${escapeHTML(account.password)}
+                </div>
+
+            </div>
+
+            <div class="actions">
+
+                <button
+                    class="copy"
+                    onclick='copyText(${JSON.stringify(account.email)})'>
+
+                    📋 Copy Email
+
+                </button>
+
+                <button
+                    class="copy"
+                    onclick='copyText(${JSON.stringify(account.password)})'>
+
+                    📋 Copy Pass
+
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="price">
+            0đ
+        </div>
+
+        <button
+            id="receive-${account.id}"
+            class="receive"
+            onclick="receiveAccount(${account.id})"
+            ${received ? "disabled" : ""}>
+
+            ${received ? "✅ ĐÃ NHẬN ACC" : "🎁 NHẬN ACC"}
+
+        </button>
+
+        <div style="margin-top:8px">
+
+            <button
+                class="delete"
+                style="width:100%"
+                onclick="deleteAccount(${account.id})">
+
+                🗑 Xóa
+
+            </button>
+
+        </div>
+
+    </div>
+
+    `;
+}
+
+
+/* =================================
+   NHẬN ACC
+================================= */
+
+function receiveAccount(id){
+
+    const account =
+        accounts.find(
+            item => item.id === id
+        );
+
+    if(!account){
+        return;
+    }
+
+    receivedAccounts.add(id);
+
+    render();
+
+    toast("✅ Đã nhận Gmail!");
+}
+
+
+/* =================================
+   THÊM ACC
+================================= */
+
+function addAccount(){
+
+    const email =
+        document
+        .getElementById("email")
+        .value
+        .trim();
+
+    const password =
+        document
+        .getElementById("password")
+        .value
+        .trim();
+
+    if(!email || !password){
+
+        toast(
+            "⚠️ Hãy nhập email và mật khẩu"
+        );
+
+        return;
+    }
+
+    accounts.push({
+
+        id: Date.now(),
+
+        email: email,
+
+        password: password
+
+    });
+
+    document
+        .getElementById("email")
+        .value = "";
+
+    document
+        .getElementById("password")
+        .value = "";
+
+    render();
+
+    toast("✅ Đã thêm Gmail!");
+}
+
+
+/* =================================
+   XÓA ACC
+================================= */
+
+function deleteAccount(id){
+
+    accounts =
+        accounts.filter(
+            account => account.id !== id
+        );
+
+    receivedAccounts.delete(id);
+
+    render();
+
+    toast("🗑 Đã xóa Gmail!");
+}
+
+
+/* =================================
+   COPY TEXT
+   Hoạt động cả file://
+================================= */
+
+async function copyText(text){
+
+    text = String(text);
+
+    /* Clipboard API */
+    try{
+
+        if(
+            navigator.clipboard &&
+            window.isSecureContext
+        ){
+
+            await navigator.clipboard.writeText(text);
+
+            toast("📋 Đã copy!");
+
+            return;
+        }
+
+    }catch(error){
+
+        console.log(
+            "Clipboard API không dùng được:",
+            error
+        );
+
+    }
+
+
+    /* FALLBACK */
+    try{
+
+        const textarea =
+            document.createElement("textarea");
+
+        textarea.value = text;
+
+        textarea.setAttribute(
+            "readonly",
+            ""
+        );
+
+        textarea.style.position = "fixed";
+        textarea.style.left = "-9999px";
+        textarea.style.top = "0";
+        textarea.style.opacity = "0";
+
+        document.body.appendChild(textarea);
+
+        textarea.focus();
+        textarea.select();
+        textarea.setSelectionRange(
+            0,
+            textarea.value.length
+        );
+
+        const success =
+            document.execCommand("copy");
+
+        document.body.removeChild(textarea);
+
+        if(success){
+
+            toast("📋 Đã copy!");
+
+        }else{
+
+            showManualCopy(text);
+
+        }
+
+    }catch(error){
+
+        console.error(error);
+
+        showManualCopy(text);
+
+    }
+}
+
+
+/* =================================
+   NẾU TRÌNH DUYỆT CHẶN COPY
+================================= */
+
+function showManualCopy(text){
+
+    const textarea =
+        document.createElement("textarea");
+
+    textarea.value = text;
+
+    textarea.style.position = "fixed";
+    textarea.style.left = "50%";
+    textarea.style.top = "50%";
+    textarea.style.transform =
+        "translate(-50%,-50%)";
+
+    textarea.style.width = "80%";
+    textarea.style.height = "100px";
+    textarea.style.zIndex = "9999";
+
+    document.body.appendChild(textarea);
+
+    textarea.focus();
+    textarea.select();
+
+    toast(
+        "⚠️ Hãy nhấn giữ và chọn Sao chép"
+    );
+}
+
+
+/* =================================
+   ADMIN
+================================= */
+
+function toggleAdmin(){
+
+    document
+        .getElementById("admin")
+        .classList
+        .toggle("show");
+
+}
+
+
+/* =================================
+   DARK / LIGHT
+================================= */
+
+function toggleTheme(){
+
+    document
+        .body
+        .classList
+        .toggle("light");
+
+}
+
+
+/* =================================
+   NEON
+================================= */
+
+function toggleNeon(){
+
+    document
+        .body
+        .classList
+        .toggle("neon");
+
+}
+
+
+/* =================================
+   TOAST
+================================= */
+
+function toast(message){
+
+    const element =
+        document.getElementById("toast");
+
+    element.textContent = message;
+
+    element.classList.add("show");
+
+    clearTimeout(
+        window.toastTimer
+    );
+
+    window.toastTimer =
+        setTimeout(() => {
+
+            element.classList.remove("show");
+
+        },2200);
+}
+
+
+/* =================================
+   ESCAPE HTML
+================================= */
+
+function escapeHTML(value){
+
+    return String(value)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+
+}
+
+
+/* =================================
+   START
+================================= */
+
+render();
+
+</script>
+
+</body>
+</html>
